@@ -85,7 +85,7 @@ const CategoryBar = () => {
           <Link
             key={category.id}
             to={`/category/${category.slug}`}
-            className="flex flex-col items-center min-w-[80px] px-2 text-flipkart-text-primary transition-transform hover:scale-105"
+            className="flex flex-col items-center min-w-[80px] px-2 text-genzmart-text-primary transition-transform hover:scale-105"
           >
             <span className="text-2xl mb-1">{category.icon}</span>
             <span className="text-xs text-center font-medium">{category.name}</span>

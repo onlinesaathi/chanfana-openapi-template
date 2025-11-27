@@ -25,7 +25,7 @@ const DealsSection = ({ title, viewAllLink, products }: DealsSectionProps) => {
   return (
     <div className="bg-white rounded shadow-sm my-3">
       <div className="flex justify-between items-center p-4 border-b">
-        <h2 className="text-xl font-bold text-flipkart-text-primary">{title}</h2>
+        <h2 className="text-xl font-bold text-genzmart-text-primary">{title}</h2>
         {viewAllLink && (
           <Button variant="ghost" className="text-flipkart-blue" asChild>
             <a href={viewAllLink} className="flex items-center">

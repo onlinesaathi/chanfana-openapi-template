@@ -267,7 +267,7 @@ const ProductListing = () => {
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-flipkart-text-primary">
+            <h1 className="text-2xl font-bold text-genzmart-text-primary">
               {getCategoryTitle()}
             </h1>
             <div className="flex items-center space-x-2">
@@ -287,7 +287,7 @@ const ProductListing = () => {
               </Button>
               <div className="hidden lg:block">
                 <select
-                  className="bg-white border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-flipkart-blue"
+                  className="bg-white border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-genzmart-blue"
                   value={sortOption}
                   onChange={(e) => handleSortChange(e.target.value)}
                 >
@@ -303,11 +303,11 @@ const ProductListing = () => {
           <div className="lg:flex gap-4">
             {/* Mobile Filters (Collapsible) */}
             {showMobileFilters && (
-              <div className="lg:hidden w-full mb-4 bg-white rounded shadow-sm p-4">
+                <div className="lg:hidden w-full mb-4 bg-white rounded shadow-sm p-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="font-medium text-flipkart-text-primary">Filters</h2>
+                  <h2 className="font-medium text-genzmart-text-primary">Filters</h2>
                   <button
-                    className="text-flipkart-blue text-sm"
+                    className="text-genzmart-blue text-sm"
                     onClick={() => {
                       setSearchParams(new URLSearchParams());
                       window.location.reload();
@@ -319,7 +319,7 @@ const ProductListing = () => {
                 <FilterSidebar />
                 <div className="mt-3">
                   <select
-                    className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-flipkart-blue"
+                    className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-genzmart-blue"
                     value={sortOption}
                     onChange={(e) => handleSortChange(e.target.value)}
                   >
@@ -333,11 +333,11 @@ const ProductListing = () => {
             )}
 
             {/* Desktop Filters (Sidebar) */}
-            <div className="hidden lg:block w-1/4 min-w-[250px] bg-white rounded shadow-sm p-4 h-fit">
+              <div className="hidden lg:block w-1/4 min-w-[250px] bg-white rounded shadow-sm p-4 h-fit">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="font-medium text-flipkart-text-primary">Filters</h2>
+                <h2 className="font-medium text-genzmart-text-primary">Filters</h2>
                 <button
-                  className="text-flipkart-blue text-sm"
+                  className="text-genzmart-blue text-sm"
                   onClick={() => {
                     setSearchParams(new URLSearchParams());
                     window.location.reload();
@@ -352,7 +352,7 @@ const ProductListing = () => {
             {/* Product Grid */}
             <div className="lg:w-3/4 bg-white rounded shadow-sm">
               <div className="p-4 border-b hidden lg:block">
-                <p className="text-sm text-flipkart-text-secondary">
+                <p className="text-sm text-genzmart-text-secondary">
                   Showing {filteredProducts.length} products 
                   {category ? ` in ${getCategoryTitle()}` : ""}
                 </p>

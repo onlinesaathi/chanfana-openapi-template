@@ -37,7 +37,7 @@ const SearchPage = () => {
     <div className="min-h-screen bg-gray-100 py-4">
       <div className="container mx-auto px-4">
         <div className="bg-white rounded shadow-sm mb-4 p-4">
-          <h1 className="text-lg md:text-xl font-medium text-flipkart-text-primary">
+          <h1 className="text-lg md:text-xl font-medium text-genzmart-text-primary">
             Search Results for "{query}"
           </h1>
         </div>
@@ -45,14 +45,14 @@ const SearchPage = () => {
         {loading ? (
           <div className="bg-white rounded shadow-sm p-8 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-flipkart-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-flipkart-text-primary">Searching for "{query}"...</p>
+              <div className="w-16 h-16 border-4 border-genzmart-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-genzmart-text-primary">Searching for "{query}"...</p>
             </div>
           </div>
         ) : products.length > 0 ? (
           <div className="bg-white rounded shadow-sm">
             <div className="p-4 border-b">
-              <p className="text-sm text-flipkart-text-secondary">
+              <p className="text-sm text-genzmart-text-secondary">
                 Showing {products.length} results for "{query}"
               </p>
             </div>
@@ -65,10 +65,10 @@ const SearchPage = () => {
         ) : (
           <div className="bg-white rounded shadow-sm p-8 text-center">
             <Search className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-            <h2 className="text-xl font-medium text-flipkart-text-primary mb-2">
+            <h2 className="text-xl font-medium text-genzmart-text-primary mb-2">
               No results found for "{query}"
             </h2>
-            <p className="text-flipkart-text-secondary max-w-md mx-auto">
+            <p className="text-genzmart-text-secondary max-w-md mx-auto">
               We couldn't find any matches for your search. Please try another search term or browse our categories.
             </p>
           </div>

@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Check localStorage for existing user session
-    const storedUser = localStorage.getItem("flipkart_user");
+    const storedUser = localStorage.getItem("genzmart_user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
       
       // Store user in localStorage
-      localStorage.setItem("flipkart_user", JSON.stringify(newUser));
+      localStorage.setItem("genzmart_user", JSON.stringify(newUser));
       setUser(newUser);
       setIsAuthenticated(true);
       return true;
@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("flipkart_user");
-    localStorage.removeItem("flipkart_cart");
+    localStorage.removeItem("genzmart_user");
+    localStorage.removeItem("genzmart_cart");
     setUser(null);
     setIsAuthenticated(false);
   };

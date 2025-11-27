@@ -25,7 +25,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Load cart from localStorage on initial load
-    const storedCart = localStorage.getItem("flipkart_cart");
+    const storedCart = localStorage.getItem("genzmart_cart");
     if (storedCart) {
       setItems(JSON.parse(storedCart));
     }
@@ -33,7 +33,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Update localStorage whenever cart changes
   useEffect(() => {
-    localStorage.setItem("flipkart_cart", JSON.stringify(items));
+    localStorage.setItem("genzmart_cart", JSON.stringify(items));
   }, [items]);
 
   const addToCart = (product: Product) => {

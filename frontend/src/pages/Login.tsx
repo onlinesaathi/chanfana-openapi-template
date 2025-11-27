@@ -49,7 +49,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-      <div className="bg-flipkart-blue md:min-h-screen md:w-2/5 p-8 flex flex-col justify-between">
+      <div className="bg-genzmart-blue md:min-h-screen md:w-2/5 p-8 flex flex-col justify-between">
         <div className="text-white">
           <h2 className="text-2xl font-bold">Login</h2>
           <p className="mt-2 text-sm md:text-base opacity-80">
@@ -87,7 +87,7 @@ const Login = () => {
                 <Label htmlFor="password">Password</Label>
                 <Link 
                   to="/forgot-password" 
-                  className="text-sm text-flipkart-blue hover:underline"
+                  className="text-sm text-genzmart-blue hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -107,12 +107,12 @@ const Login = () => {
             </div>
 
             <div className="text-sm text-gray-500">
-              By continuing, you agree to Flipkart's{" "}
-              <a href="#" className="text-flipkart-blue hover:underline">
+              By continuing, you agree to GenZmart's{" "}
+              <a href="#" className="text-genzmart-blue hover:underline">
                 Terms of Use
               </a>{" "}
               and{" "}
-              <a href="#" className="text-flipkart-blue hover:underline">
+              <a href="#" className="text-genzmart-blue hover:underline">
                 Privacy Policy
               </a>
               .
@@ -120,17 +120,17 @@ const Login = () => {
 
             <Button 
               type="submit" 
-              className="w-full bg-flipkart-blue hover:bg-flipkart-blue/90"
+              className="w-full bg-genzmart-blue hover:bg-genzmart-blue/90"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
             </Button>
 
             <div className="text-center">
-              <span className="text-gray-600">New to Flipkart?</span>{" "}
+              <span className="text-gray-600">New to GenZmart?</span>{" "}
               <Link 
                 to="/register" 
-                className="text-flipkart-blue hover:underline inline-flex items-center"
+                className="text-genzmart-blue hover:underline inline-flex items-center"
               >
                 Create an account
                 <ArrowRight className="ml-1 h-4 w-4" />

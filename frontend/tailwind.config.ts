@@ -63,8 +63,8 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Flipkart colors
-				flipkart: {
+				// GenZmart brand colors
+				genzmart: {
 					blue: '#2874f0',
 					yellow: '#ffe500',
 					green: '#388e3c',

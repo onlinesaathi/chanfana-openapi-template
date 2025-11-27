@@ -25,11 +25,11 @@ const OrderComplete = () => {
         <div className="max-w-2xl mx-auto bg-white rounded shadow-sm p-8">
           {/* Order Success Header */}
           <div className="text-center mb-8">
-            <CheckCircle className="h-16 w-16 text-flipkart-green mx-auto mb-4" />
-            <h1 className="text-2xl md:text-3xl font-bold text-flipkart-text-primary mb-2">
+            <CheckCircle className="h-16 w-16 text-genzmart-green mx-auto mb-4" />
+            <h1 className="text-2xl md:text-3xl font-bold text-genzmart-text-primary mb-2">
               Order Placed Successfully!
             </h1>
-            <p className="text-flipkart-text-secondary">
+            <p className="text-genzmart-text-secondary">
               Thank you for your purchase. Your order has been confirmed.
             </p>
           </div>
@@ -39,12 +39,12 @@ const OrderComplete = () => {
             <div className="flex flex-col md:flex-row justify-between mb-4 pb-4 border-b">
               <div>
                 <h2 className="text-lg font-medium">Order Details</h2>
-                <p className="text-flipkart-text-secondary text-sm">
+                <p className="text-genzmart-text-secondary text-sm">
                   Order #: {orderId}
                 </p>
               </div>
               <div className="mt-2 md:mt-0">
-                <p className="text-flipkart-text-secondary text-sm">
+                <p className="text-genzmart-text-secondary text-sm">
                   Order Date: {new Date().toLocaleDateString("en-IN", { 
                     day: 'numeric',
                     month: 'long',
@@ -63,12 +63,12 @@ const OrderComplete = () => {
                 
                 {/* Order Placed */}
                 <div className="flex items-start mb-6 relative z-10">
-                  <div className="h-7 w-7 bg-flipkart-green rounded-full flex items-center justify-center">
+                  <div className="h-7 w-7 bg-genzmart-green rounded-full flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 text-white" />
                   </div>
                   <div className="ml-4">
                     <h4 className="font-medium">Order Placed</h4>
-                    <p className="text-sm text-flipkart-text-secondary">
+                    <p className="text-sm text-genzmart-text-secondary">
                       Your order has been confirmed
                     </p>
                   </div>
@@ -81,7 +81,7 @@ const OrderComplete = () => {
                   </div>
                   <div className="ml-4">
                     <h4 className="font-medium">Processing</h4>
-                    <p className="text-sm text-flipkart-text-secondary">
+                    <p className="text-sm text-genzmart-text-secondary">
                       Your order is being processed
                     </p>
                   </div>
@@ -94,7 +94,7 @@ const OrderComplete = () => {
                   </div>
                   <div className="ml-4">
                     <h4 className="font-medium">On the Way</h4>
-                    <p className="text-sm text-flipkart-text-secondary">
+                    <p className="text-sm text-genzmart-text-secondary">
                       Estimated delivery: {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { 
                       weekday: 'long',
                       day: 'numeric',
@@ -108,7 +108,7 @@ const OrderComplete = () => {
             
             {/* Email Notification */}
             <div className="bg-gray-50 p-4 rounded-md text-sm">
-              <p className="text-center text-flipkart-text-secondary">
+              <p className="text-center text-genzmart-text-secondary">
                 A confirmation email has been sent to your registered email address with all the order details.
               </p>
             </div>

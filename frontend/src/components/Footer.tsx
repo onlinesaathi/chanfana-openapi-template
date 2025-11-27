@@ -60,7 +60,7 @@ const Footer = () => {
                       className="text-xs text-gray-300 hover:underline flex items-center"
                     >
                       {link.icon && <span className="mr-2">{link.icon}</span>}
-                      {link.name}
+                      {link.name.replace(/Flipkart/g, "GenZmart")}
                     </a>
                   </li>
                 ))}
@@ -74,8 +74,8 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={16} className="mr-2 mt-0.5 flex-shrink-0 text-gray-400" />
-                <span className="text-xs text-gray-300">
-                  Flipkart Internet Private Limited,
+                  <span className="text-xs text-gray-300">
+                  GenZmart Internet Private Limited,
                   Buildings Alyssa, Begonia &
                   Clove Embassy Tech Village,
                   Outer Ring Road, Devarabeesanahalli Village,
@@ -100,7 +100,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-gray-700 text-xs text-gray-400 flex flex-col md:flex-row justify-between items-center">
-          <p>&copy; 2023 Flipkart Clone. All rights reserved.</p>
+          <p>&copy; 2023 GenZmart. All rights reserved.</p>
           <p className="mt-2 md:mt-0">This is a demo website for educational purposes only.</p>
         </div>
       </div>

@@ -45,7 +45,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-6">
       <div className="container mx-auto px-4">
-        <h1 className="text-xl md:text-2xl font-semibold text-flipkart-text-primary mb-4">
+        <h1 className="text-xl md:text-2xl font-semibold text-genzmart-text-primary mb-4">
           Shopping Cart {totalItems > 0 ? `(${totalItems} ${totalItems === 1 ? 'item' : 'items'})` : ''}
         </h1>
         
@@ -68,21 +68,21 @@ const Cart = () => {
                       
                       {/* Product Info */}
                       <div className="flex-grow">
-                        <h3 className="text-sm text-flipkart-text-primary font-medium">
+                        <h3 className="text-sm text-genzmart-text-primary font-medium">
                           {item.title}
                         </h3>
                         
                         <div className="flex items-center my-2">
-                          <span className="font-medium text-flipkart-text-primary mr-2">
+                          <span className="font-medium text-genzmart-text-primary mr-2">
                             ₹{item.price.toLocaleString()}
                           </span>
                           {item.originalPrice && (
-                            <span className="text-flipkart-text-secondary text-xs line-through mr-2">
+                            <span className="text-genzmart-text-secondary text-xs line-through mr-2">
                               ₹{item.originalPrice.toLocaleString()}
                             </span>
                           )}
                           {item.discount && (
-                            <span className="text-flipkart-green text-xs">
+                            <span className="text-genzmart-green text-xs">
                               {item.discount}% off
                             </span>
                           )}
@@ -133,7 +133,7 @@ const Cart = () => {
             {/* Order Summary */}
             <div className="md:col-span-1">
               <div className="bg-white rounded shadow-sm p-4 sticky top-20">
-                <h2 className="text-lg font-medium text-flipkart-text-primary mb-4 pb-2 border-b">
+                <h2 className="text-lg font-medium text-genzmart-text-primary mb-4 pb-2 border-b">
                   Order Summary
                 </h2>
                 
@@ -145,7 +145,7 @@ const Cart = () => {
                   
                   <div className="flex justify-between">
                     <span>Delivery</span>
-                    <span className="text-flipkart-green">FREE</span>
+                    <span className="text-genzmart-green">FREE</span>
                   </div>
                   
                   <div className="border-t mt-3 pt-3 font-medium">
@@ -157,7 +157,7 @@ const Cart = () => {
                 </div>
                 
                 <Button 
-                  className="w-full mt-6 bg-flipkart-blue hover:bg-flipkart-blue/90"
+                  className="w-full mt-6 bg-genzmart-blue hover:bg-genzmart-blue/90"
                   onClick={handleCheckout}
                   disabled={isProcessing || items.length === 0}
                 >
@@ -167,7 +167,7 @@ const Cart = () => {
                 <div className="mt-4 text-center">
                   <Link 
                     to="/" 
-                    className="text-flipkart-blue hover:underline text-sm"
+                    className="text-genzmart-blue hover:underline text-sm"
                   >
                     Continue Shopping
                   </Link>

@@ -107,7 +107,7 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-6">
       <div className="container mx-auto px-4">
-        <h1 className="text-xl md:text-2xl font-semibold text-flipkart-text-primary mb-6">
+        <h1 className="text-xl md:text-2xl font-semibold text-genzmart-text-primary mb-6">
           Checkout
         </h1>
         
@@ -118,7 +118,7 @@ const Checkout = () => {
               {/* Shipping Address Section */}
               <div className="bg-white rounded shadow-sm p-6 mb-6">
                 <div className="flex items-center mb-4">
-                  <MapPin className="mr-2 text-flipkart-blue" size={20} />
+                  <MapPin className="mr-2 text-genzmart-blue" size={20} />
                   <h2 className="text-lg font-medium">Shipping Address</h2>
                 </div>
                 
@@ -195,7 +195,7 @@ const Checkout = () => {
               {/* Payment Section */}
               <div className="bg-white rounded shadow-sm p-6 mb-6">
                 <div className="flex items-center mb-4">
-                  <CreditCard className="mr-2 text-flipkart-blue" size={20} />
+                  <CreditCard className="mr-2 text-genzmart-blue" size={20} />
                   <h2 className="text-lg font-medium">Payment Method</h2>
                 </div>
                 
@@ -273,7 +273,7 @@ const Checkout = () => {
               <div className="md:hidden">
                 <Button 
                   type="submit" 
-                  className="w-full bg-flipkart-blue hover:bg-flipkart-blue/90"
+                  className="w-full bg-genzmart-blue hover:bg-genzmart-blue/90"
                   disabled={isProcessing}
                 >
                   {isProcessing ? "Processing..." : "Place Order"}
@@ -319,9 +319,9 @@ const Checkout = () => {
                 </div>
                 
                 <div className="flex justify-between">
-                  <span>Delivery</span>
-                  <span className="text-flipkart-green">FREE</span>
-                </div>
+                    <span>Delivery</span>
+                    <span className="text-genzmart-green">FREE</span>
+                  </div>
                 
                 <div className="border-t mt-3 pt-3 font-medium">
                   <div className="flex justify-between text-base">
@@ -332,9 +332,9 @@ const Checkout = () => {
               </div>
               
               {/* Delivery Info */}
-              <div className="mt-4 bg-gray-50 p-3 rounded text-sm">
+                  <div className="mt-4 bg-gray-50 p-3 rounded text-sm">
                 <div className="flex items-start">
-                  <Truck className="text-flipkart-blue mr-2 mt-0.5" size={18} />
+                  <Truck className="text-genzmart-blue mr-2 mt-0.5" size={18} />
                   <div>
                     <p className="font-medium">Estimated Delivery</p>
                     <p className="text-gray-600">
