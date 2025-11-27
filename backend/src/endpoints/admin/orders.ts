@@ -27,7 +27,7 @@ export class DeleteOrder extends OpenAPIRoute {
         name: "id",
         in: "path" as const,
         required: true,
-        schema: { type: "number" },
+        schema: { type: "integer" as const },
       },
     ],
     responses: {
