@@ -78,7 +78,9 @@ const CategoryBar = () => {
 
       <div
         id="category-container"
-        className="flex overflow-x-auto scrollbar-hide py-3 px-4 scroll-smooth"
+        className={`flex overflow-x-auto scrollbar-hide py-3 px-4 scroll-smooth ${
+          showControls ? "justify-start" : "justify-center"
+        }`}
         onScroll={handleScroll}
       >
         {categories.map((category) => (

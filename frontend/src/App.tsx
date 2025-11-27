@@ -14,6 +14,11 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderComplete from "./pages/OrderComplete";
 import ProductListing from "./pages/ProductListing";
+import AdminPanel from "./pages/AdminPanel";
+import Dashboard from "./pages/admin/Dashboard";
+import Products from "./pages/admin/Products";
+import Orders from "./pages/admin/Orders";
+import Users from "./pages/admin/Users";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 
@@ -38,6 +43,13 @@ const App = () => (
               <Route path="/order-complete" element={<OrderComplete />} />
               <Route path="/category/:category" element={<ProductListing />} />
               <Route path="/products" element={<ProductListing />} />
+              {/* Admin panel routes */}
+              <Route path="/admin" element={<AdminPanel />}>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="products" element={<Products />} />
+                <Route path="orders" element={<Orders />} />
+                <Route path="users" element={<Users />} />
+              </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -10,7 +10,8 @@
     {
       "binding": "DB",
       "database_name": "openapi-template-db",
-      "database_id": "8eb34c88-8132-48ee-9b4b-a5095119594f"
+      "database_id": "8eb34c88-8132-48ee-9b4b-a5095119594f",
+      "migrations_dir": "migrations"
     }
   ]
 }

@@ -58,16 +58,16 @@ const Checkout = () => {
     setCardDetails(prev => ({ ...prev, [name]: value }));
   };
   
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Simple validation
     if (
-      !address.fullName || 
-      !address.phone || 
-      !address.streetAddress || 
-      !address.city || 
-      !address.state || 
+      !address.fullName ||
+      !address.phone ||
+      !address.streetAddress ||
+      !address.city ||
+      !address.state ||
       !address.pincode
     ) {
       toast({
@@ -77,31 +77,68 @@ const Checkout = () => {
       });
       return;
     }
-    
-    if (paymentMethod === "card") {
-      if (
-        !cardDetails.cardNumber || 
-        !cardDetails.nameOnCard || 
-        !cardDetails.expiry || 
-        !cardDetails.cvv
-      ) {
-        toast({
-          variant: "destructive",
-          title: "Please fill all card details",
-          description: "All card fields are required for payment",
-        });
-        return;
-      }
-    }
-    
+
     setIsProcessing(true);
-    
-    // Simulate order processing
-    setTimeout(() => {
-      clearCart();
+
+    try {
+      // Create server-side Razorpay order (backend will use secret keys)
+      const createResp: any = await (await import("@/services/api")).apiClient.payments.razorpay.createOrder({ amount: totalPrice });
+      const order = createResp.order;
+      if (!order) throw new Error("Failed to create order");
+
+      // Load Razorpay checkout script if not present
+      if (!(window as any).Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://checkout.razorpay.com/v1/checkout.js";
+          s.async = true;
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
+          document.head.appendChild(s);
+        });
+      }
+
+      const options: any = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount, // amount in paise
+        currency: order.currency,
+        name: "GenZmart",
+        description: `Order ${order.receipt || order.id}`,
+        order_id: order.id,
+        handler: async (response: any) => {
+          try {
+            // Verify payment on server
+            const verifyResp: any = await (await import("@/services/api")).apiClient.payments.razorpay.verify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verifyResp.verified) {
+              clearCart();
+              navigate("/order-complete");
+            } else {
+              toast({ variant: "destructive", title: "Payment verification failed" });
+            }
+          } catch (err: any) {
+            toast({ variant: "destructive", title: "Payment verification error", description: err.message });
+          }
+        },
+        prefill: {
+          name: address.fullName,
+          email: (user && (user as any).email) || "",
+          contact: address.phone,
+        },
+        theme: { color: "#2563eb" },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Payment error", description: err.message });
+    } finally {
       setIsProcessing(false);
-      navigate("/order-complete");
-    }, 2000);
+    }
   };
   
   return (
