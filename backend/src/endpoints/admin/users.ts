@@ -25,7 +25,7 @@ export class DeleteUser extends OpenAPIRoute {
     parameters: [
       {
         name: "id",
-        in: "path",
+        in: "path" as const,
         required: true,
         schema: { type: "number" },
       },
