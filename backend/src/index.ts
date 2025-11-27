@@ -46,46 +46,28 @@ const openapi = fromHono(app, {
 });
 
 // Register auth endpoints
-openapi.post("/auth/register", Register);
-openapi.post("/auth/login", Login);
+openapi.post("/auth/register", Register as unknown as any);
+openapi.post("/auth/login", Login as unknown as any);
 
 // Register admin endpoints
-openapi.get("/admin/products", ListProducts);
-openapi.post("/admin/products", CreateProduct);
-openapi.put("/admin/products/:id", UpdateProduct);
-openapi.delete("/admin/products/:id", DeleteProduct);
+openapi.get("/admin/products", ListProducts as unknown as any);
+openapi.post("/admin/products", CreateProduct as unknown as any);
+openapi.put("/admin/products/:id", UpdateProduct as unknown as any);
+openapi.delete("/admin/products/:id", DeleteProduct as unknown as any);
 
-openapi.get("/admin/orders", ListOrders);
-openapi.delete("/admin/orders/:id", DeleteOrder);
+openapi.get("/admin/orders", ListOrders as unknown as any);
+openapi.delete("/admin/orders/:id", DeleteOrder as unknown as any);
 
-openapi.get("/admin/users", ListUsers);
-openapi.delete("/admin/users/:id", DeleteUser);
+openapi.get("/admin/users", ListUsers as unknown as any);
+openapi.delete("/admin/users/:id", DeleteUser as unknown as any);
 
 // Payments
-openapi.post("/payments/razorpay/create-order", RazorpayCreateOrder);
-openapi.post("/payments/razorpay/verify", RazorpayVerify);
+openapi.post("/payments/razorpay/create-order", RazorpayCreateOrder as unknown as any);
+openapi.post("/payments/razorpay/verify", RazorpayVerify as unknown as any);
 
 // Serve a minimal static homepage at `/` that links to the OpenAPI docs at `/openapi`
-app.get("/", (c) =>
-  c.html(
-    `<!doctype html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>GenZmart API</title>
-        <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f7fafc;color:#111} .card{background:white;border-radius:8px;padding:24px;box-shadow:0 6px 18px rgba(0,0,0,.06);max-width:520px;text-align:center} a{color:#2563eb;text-decoration:none;font-weight:bold}</style>
-      </head>
-      <body>
-        <div class="card">
-          <h1>GenZmart API</h1>
-          <p>Backend is running!</p>
-          <p><a href="/openapi">View API Documentation →</a></p>
-        </div>
-      </body>
-    </html>`,
-  )
-);
+// Redirect root to the OpenAPI docs
+app.get("/", (c) => c.redirect("/openapi"));
 
 // Catch-all 404 for undefined routes
 app.all("*", (c) =>

@@ -8584,30 +8584,6 @@ function Bool(params) {
   });
 }
 __name(Bool, "Bool");
-function Enumeration(params) {
-  let { values } = params;
-  const originalValues = { ...values };
-  if (Array.isArray(values)) values = Object.fromEntries(values.map((x) => [x, x]));
-  const originalKeys = Object.keys(values);
-  if (params.enumCaseSensitive === false) {
-    values = Object.keys(values).reduce((accumulator, key) => {
-      accumulator[key.toLowerCase()] = values[key];
-      return accumulator;
-    }, {});
-  }
-  const keys = Object.keys(values);
-  let field;
-  if ([void 0, true].includes(params.enumCaseSensitive)) {
-    field = external_exports.enum(keys);
-  } else {
-    field = external_exports.preprocess((val) => String(val).toLowerCase(), external_exports.enum(keys)).openapi({ enum: originalKeys });
-  }
-  field = field.transform((val) => values[val]);
-  const result = convertParams(field, params);
-  result.values = originalValues;
-  return result;
-}
-__name(Enumeration, "Enumeration");
 function coerceInputs(data, schema2) {
   if (data.size === 0 || data.size === void 0 && typeof data === "object" && Object.keys(data).length === 0) {
     return null;
@@ -8699,39 +8675,6 @@ var ApiException = class extends Error {
       }
     };
   }
-};
-var InputValidationException = class extends ApiException {
-  static {
-    __name(this, "InputValidationException");
-  }
-  isVisible = true;
-  default_message = "Input Validation Error";
-  status = 400;
-  code = 7001;
-  path = null;
-  includesPath = true;
-  constructor(message, path) {
-    super(message);
-    this.path = path;
-  }
-  buildResponse() {
-    return [
-      {
-        code: this.code,
-        message: this.isVisible ? this.message : "Internal Error",
-        path: this.path
-      }
-    ];
-  }
-};
-var NotFoundException = class extends ApiException {
-  static {
-    __name(this, "NotFoundException");
-  }
-  isVisible = true;
-  default_message = "Not Found";
-  status = 404;
-  code = 7002;
 };
 function jsonResp(data, params) {
   return new Response(JSON.stringify(data), {
@@ -8940,708 +8883,6 @@ function fromHono(router, options) {
   return proxy;
 }
 __name(fromHono, "fromHono");
-function MetaGenerator(meta) {
-  return {
-    fields: meta.fields ?? meta.model.schema,
-    model: {
-      serializer: /* @__PURE__ */ __name((obj) => obj, "serializer"),
-      serializerSchema: meta.model.schema,
-      ...meta.model
-    },
-    pathParameters: meta.pathParameters ?? null
-  };
-}
-__name(MetaGenerator, "MetaGenerator");
-var CreateEndpoint = class extends OpenAPIRoute {
-  static {
-    __name(this, "CreateEndpoint");
-  }
-  // @ts-ignore
-  _meta;
-  get meta() {
-    return MetaGenerator(this._meta);
-  }
-  getSchema() {
-    const bodyParameters = this.meta.fields.omit(
-      (this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {})
-    );
-    const pathParameters = this.meta.fields.pick(
-      (this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {})
-    );
-    return {
-      request: {
-        body: contentJson(bodyParameters),
-        params: Object.keys(pathParameters.shape).length ? pathParameters : void 0,
-        ...this.schema?.request
-      },
-      responses: {
-        "201": {
-          description: "Returns the created Object",
-          ...contentJson({
-            success: Boolean,
-            result: this.meta.model.serializerSchema
-          }),
-          ...this.schema?.responses?.[200]
-        },
-        ...InputValidationException.schema(),
-        ...this.schema?.responses
-      },
-      ...this.schema
-    };
-  }
-  async getObject() {
-    const data = await this.getValidatedData();
-    const newData = {
-      ...data.body
-    };
-    for (const param of this.params.urlParams) {
-      newData[param] = data.params[param];
-    }
-    return newData;
-  }
-  async before(data) {
-    return data;
-  }
-  async after(data) {
-    return data;
-  }
-  async create(data) {
-    return data;
-  }
-  async handle(...args) {
-    let obj = await this.getObject();
-    obj = await this.before(obj);
-    obj = await this.create(obj);
-    obj = await this.after(obj);
-    return Response.json(
-      {
-        success: true,
-        result: this.meta.model.serializer(obj)
-      },
-      { status: 201 }
-    );
-  }
-};
-var DeleteEndpoint = class extends OpenAPIRoute {
-  static {
-    __name(this, "DeleteEndpoint");
-  }
-  // @ts-ignore
-  _meta;
-  get meta() {
-    return MetaGenerator(this._meta);
-  }
-  getSchema() {
-    const bodyParameters = this.meta.fields.pick((this.meta.model.primaryKeys || []).reduce((a, v) => ({ ...a, [v]: true }), {})).omit((this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {}));
-    const pathParameters = this.meta.fields.pick((this.meta.model.primaryKeys || []).reduce((a, v) => ({ ...a, [v]: true }), {})).pick((this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {}));
-    return {
-      request: {
-        body: Object.keys(bodyParameters.shape).length ? contentJson(bodyParameters) : void 0,
-        params: Object.keys(pathParameters.shape).length ? pathParameters : void 0,
-        ...this.schema?.request
-      },
-      responses: {
-        "200": {
-          description: "Returns the Object if it was successfully deleted",
-          ...contentJson({
-            success: Boolean,
-            result: this.meta.model.serializerSchema
-          }),
-          ...this.schema?.responses?.[200]
-        },
-        ...NotFoundException.schema(),
-        ...this.schema?.responses
-      },
-      ...this.schema
-    };
-  }
-  async getFilters() {
-    const data = await this.getValidatedData();
-    const filters = [];
-    for (const part of [data.params, data.body]) {
-      if (part) {
-        for (const [key, value] of Object.entries(part)) {
-          filters.push({
-            field: key,
-            operator: "EQ",
-            value
-          });
-        }
-      }
-    }
-    return {
-      filters
-    };
-  }
-  async before(oldObj, filters) {
-    return filters;
-  }
-  async after(data) {
-    return data;
-  }
-  async delete(oldObj, filters) {
-    return null;
-  }
-  async getObject(filters) {
-    return null;
-  }
-  async handle(...args) {
-    let filters = await this.getFilters();
-    const oldObj = await this.getObject(filters);
-    if (oldObj === null) {
-      throw new NotFoundException();
-    }
-    filters = await this.before(oldObj, filters);
-    let obj = await this.delete(oldObj, filters);
-    if (obj === null) {
-      throw new NotFoundException();
-    }
-    obj = await this.after(obj);
-    return {
-      success: true,
-      result: this.meta.model.serializer(obj)
-    };
-  }
-};
-var ReadEndpoint = class extends OpenAPIRoute {
-  static {
-    __name(this, "ReadEndpoint");
-  }
-  // @ts-ignore
-  _meta;
-  get meta() {
-    return MetaGenerator(this._meta);
-  }
-  getSchema() {
-    if (!this.meta.pathParameters && this.meta.model.primaryKeys.sort().toString() !== this.params.urlParams.sort().toString()) {
-      throw Error(
-        `Model primaryKeys differ from urlParameters on: ${this.params.route}: ${JSON.stringify(this.meta.model.primaryKeys)} !== ${JSON.stringify(this.params.urlParams)}, fix url parameters or define pathParameters in your Model`
-      );
-    }
-    const inputPathParameters = this.meta.pathParameters ?? this.meta.model.primaryKeys;
-    const pathParameters = this.meta.fields.pick(
-      (inputPathParameters || []).reduce((a, v) => ({ ...a, [v]: true }), {})
-    );
-    return {
-      request: {
-        //query: queryParameters,
-        params: Object.keys(pathParameters.shape).length ? pathParameters : void 0,
-        ...this.schema?.request
-      },
-      responses: {
-        "200": {
-          description: "Returns a single object if found",
-          ...contentJson({
-            success: Boolean,
-            result: this.meta.model.serializerSchema
-          }),
-          ...this.schema?.responses?.[200]
-        },
-        ...NotFoundException.schema(),
-        ...this.schema?.responses
-      },
-      ...this.schema
-    };
-  }
-  async getFilters() {
-    const data = await this.getValidatedData();
-    const filters = [];
-    for (const part of [data.params, data.query]) {
-      if (part) {
-        for (const [key, value] of Object.entries(part)) {
-          filters.push({
-            field: key,
-            operator: "EQ",
-            value
-          });
-        }
-      }
-    }
-    return {
-      filters,
-      options: {}
-      // TODO: make a new type for this
-    };
-  }
-  async before(filters) {
-    return filters;
-  }
-  async after(data) {
-    return data;
-  }
-  async fetch(filters) {
-    return null;
-  }
-  async handle(...args) {
-    let filters = await this.getFilters();
-    filters = await this.before(filters);
-    let obj = await this.fetch(filters);
-    if (!obj) {
-      throw new NotFoundException();
-    }
-    obj = await this.after(obj);
-    return {
-      success: true,
-      result: this.meta.model.serializer(obj)
-    };
-  }
-};
-var ListEndpoint = class extends OpenAPIRoute {
-  static {
-    __name(this, "ListEndpoint");
-  }
-  // @ts-ignore
-  _meta;
-  get meta() {
-    return MetaGenerator(this._meta);
-  }
-  filterFields;
-  searchFields;
-  searchFieldName = "search";
-  optionFields = ["page", "per_page", "order_by", "order_by_direction"];
-  orderByFields = [];
-  defaultOrderBy;
-  getSchema() {
-    const parsedQueryParameters = this.meta.fields.pick((this.filterFields || []).reduce((a, v) => ({ ...a, [v]: true }), {})).omit((this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {})).shape;
-    const pathParameters = this.meta.fields.pick(
-      (this.params.urlParams || this.meta.model.primaryKeys || []).reduce((a, v) => ({ ...a, [v]: true }), {})
-    );
-    for (const [key, value] of Object.entries(parsedQueryParameters)) {
-      parsedQueryParameters[key] = value.optional();
-    }
-    if (this.searchFields) {
-      parsedQueryParameters[this.searchFieldName] = external_exports.string().optional().openapi({
-        description: `Search by ${this.searchFields.join(", ")}`
-      });
-    }
-    let queryParameters = external_exports.object({
-      page: external_exports.number().int().min(1).optional().default(1),
-      per_page: external_exports.number().int().min(1).max(100).optional().default(20)
-    }).extend(parsedQueryParameters);
-    if (this.orderByFields && this.orderByFields.length > 0) {
-      queryParameters = queryParameters.extend({
-        order_by: Enumeration({
-          default: this.orderByFields[0],
-          values: this.orderByFields,
-          description: "Order By Column Name",
-          required: false
-        }),
-        order_by_direction: Enumeration({
-          default: "asc",
-          values: ["asc", "desc"],
-          description: "Order By Direction",
-          required: false
-        })
-      });
-    }
-    return {
-      request: {
-        params: Object.keys(pathParameters.shape).length ? pathParameters : void 0,
-        query: queryParameters,
-        ...this.schema?.request
-      },
-      responses: {
-        "200": {
-          description: "List objects",
-          ...contentJson({
-            success: Boolean,
-            result: [this.meta.model.serializerSchema]
-          }),
-          ...this.schema?.responses?.[200]
-        },
-        ...this.schema?.responses
-      },
-      ...this.schema
-    };
-  }
-  async getFilters() {
-    const data = await this.getValidatedData();
-    const filters = [];
-    const options = {};
-    for (const part of [data.params, data.query]) {
-      if (part) {
-        for (const [key, value] of Object.entries(part)) {
-          if (this.searchFields && key === this.searchFieldName) {
-            filters.push({
-              field: key,
-              operator: "LIKE",
-              value
-            });
-          } else if (this.optionFields.includes(key)) {
-            options[key] = value;
-          } else {
-            filters.push({
-              field: key,
-              operator: "EQ",
-              value
-            });
-          }
-        }
-      }
-    }
-    return {
-      options,
-      filters
-    };
-  }
-  async before(filters) {
-    return filters;
-  }
-  async after(data) {
-    return data;
-  }
-  async list(filters) {
-    return {
-      result: []
-    };
-  }
-  async handle(...args) {
-    let filters = await this.getFilters();
-    filters = await this.before(filters);
-    let objs = await this.list(filters);
-    objs = await this.after(objs);
-    objs = {
-      ...objs,
-      result: objs.result.map(this.meta.model.serializer)
-    };
-    return {
-      success: true,
-      ...objs
-    };
-  }
-};
-var UpdateEndpoint = class extends OpenAPIRoute {
-  static {
-    __name(this, "UpdateEndpoint");
-  }
-  // @ts-ignore
-  _meta;
-  get meta() {
-    return MetaGenerator(this._meta);
-  }
-  getSchema() {
-    const bodyParameters = this.meta.fields.omit(
-      (this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {})
-    );
-    const pathParameters = this.meta.model.schema.pick(
-      (this.params.urlParams || []).reduce((a, v) => ({ ...a, [v]: true }), {})
-    );
-    return {
-      request: {
-        body: contentJson(bodyParameters),
-        params: Object.keys(pathParameters.shape).length ? pathParameters : void 0,
-        ...this.schema?.request
-      },
-      responses: {
-        "200": {
-          description: "Returns the updated Object",
-          ...contentJson({
-            success: Boolean,
-            result: this.meta.model.serializerSchema
-          }),
-          ...this.schema?.responses?.[200]
-        },
-        ...InputValidationException.schema(),
-        ...NotFoundException.schema(),
-        ...this.schema?.responses
-      },
-      ...this.schema
-    };
-  }
-  async getFilters() {
-    const data = await this.getValidatedData();
-    const filters = [];
-    const updatedData = {};
-    for (const part of [data.params, data.body]) {
-      if (part) {
-        for (const [key, value] of Object.entries(part)) {
-          if ((this.meta.model.primaryKeys || []).includes(key)) {
-            filters.push({
-              field: key,
-              operator: "EQ",
-              value
-            });
-          } else {
-            updatedData[key] = value;
-          }
-        }
-      }
-    }
-    return {
-      filters,
-      updatedData
-    };
-  }
-  async before(oldObj, filters) {
-    return filters;
-  }
-  async after(data) {
-    return data;
-  }
-  async getObject(filters) {
-    return null;
-  }
-  async update(oldObj, filters) {
-    return oldObj;
-  }
-  async handle(...args) {
-    let filters = await this.getFilters();
-    const oldObj = await this.getObject(filters);
-    if (oldObj === null) {
-      throw new NotFoundException();
-    }
-    filters = await this.before(oldObj, filters);
-    let obj = await this.update(oldObj, filters);
-    obj = await this.after(obj);
-    return {
-      success: true,
-      result: this.meta.model.serializer(obj)
-    };
-  }
-};
-var D1CreateEndpoint = class extends CreateEndpoint {
-  static {
-    __name(this, "D1CreateEndpoint");
-  }
-  dbName = "DB";
-  logger;
-  constraintsMessages = {};
-  getDBBinding() {
-    const env = this.params.router.getBindings(this.args);
-    if (env[this.dbName] === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not defined in worker`);
-    }
-    if (env[this.dbName].prepare === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not a D1 binding`);
-    }
-    return env[this.dbName];
-  }
-  async create(data) {
-    let inserted;
-    try {
-      const result = await this.getDBBinding().prepare(
-        `INSERT INTO ${this.meta.model.tableName} (${Object.keys(data).join(", ")}) VALUES (${Object.values(data).map(() => "?").join(", ")}) RETURNING *`
-      ).bind(...Object.values(data)).all();
-      inserted = result.results[0];
-    } catch (e) {
-      if (this.logger)
-        this.logger.error(`Caught exception while trying to create ${this.meta.model.tableName}: ${e.message}`);
-      if (e.message.includes("UNIQUE constraint failed")) {
-        const constraintMessage = e.message.split("UNIQUE constraint failed:")[1].split(":")[0].trim();
-        if (this.constraintsMessages[constraintMessage]) {
-          throw this.constraintsMessages[constraintMessage];
-        }
-      }
-      throw new ApiException(e.message);
-    }
-    if (this.logger) this.logger.log(`Successfully created ${this.meta.model.tableName}`);
-    return inserted;
-  }
-};
-var D1DeleteEndpoint = class extends DeleteEndpoint {
-  static {
-    __name(this, "D1DeleteEndpoint");
-  }
-  dbName = "DB";
-  logger;
-  getDBBinding() {
-    const env = this.params.router.getBindings(this.args);
-    if (env[this.dbName] === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not defined in worker`);
-    }
-    if (env[this.dbName].prepare === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not a D1 binding`);
-    }
-    return env[this.dbName];
-  }
-  getSafeFilters(filters) {
-    const conditions = [];
-    const conditionsParams = [];
-    for (const f of filters.filters) {
-      if (f.operator === "EQ") {
-        conditions.push(`${f.field} = ?${conditionsParams.length + 1}`);
-        conditionsParams.push(f.value);
-      } else {
-        throw new ApiException(`operator ${f.operator} Not implemented`);
-      }
-    }
-    return { conditions, conditionsParams };
-  }
-  async getObject(filters) {
-    const safeFilters = this.getSafeFilters(filters);
-    const oldObj = await this.getDBBinding().prepare(`SELECT * FROM ${this.meta.model.tableName} WHERE ${safeFilters.conditions.join(" AND ")} LIMIT 1`).bind(...safeFilters.conditionsParams).all();
-    if (!oldObj.results || oldObj.results.length === 0) {
-      return null;
-    }
-    return oldObj.results[0];
-  }
-  async delete(oldObj, filters) {
-    const safeFilters = this.getSafeFilters(filters);
-    let result;
-    try {
-      result = await this.getDBBinding().prepare(
-        `DELETE FROM ${this.meta.model.tableName} WHERE ${safeFilters.conditions.join(" AND ")} RETURNING * LIMIT 1`
-      ).bind(...safeFilters.conditionsParams).all();
-    } catch (e) {
-      if (this.logger)
-        this.logger.error(`Caught exception while trying to delete ${this.meta.model.tableName}: ${e.message}`);
-      throw new ApiException(e.message);
-    }
-    if (result.meta.changes === 0) {
-      return null;
-    }
-    if (this.logger) this.logger.log(`Successfully deleted ${this.meta.model.tableName}`);
-    return oldObj;
-  }
-};
-var D1ReadEndpoint = class extends ReadEndpoint {
-  static {
-    __name(this, "D1ReadEndpoint");
-  }
-  dbName = "DB";
-  logger;
-  getDBBinding() {
-    const env = this.params.router.getBindings(this.args);
-    if (env[this.dbName] === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not defined in worker`);
-    }
-    if (env[this.dbName].prepare === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not a D1 binding`);
-    }
-    return env[this.dbName];
-  }
-  async fetch(filters) {
-    const conditions = filters.filters.map((obj2) => `${obj2.field} = ?`);
-    const obj = await this.getDBBinding().prepare(`SELECT * FROM ${this.meta.model.tableName} WHERE ${conditions.join(" AND ")} LIMIT 1`).bind(...filters.filters.map((obj2) => obj2.value)).all();
-    if (!obj.results || obj.results.length === 0) {
-      return null;
-    }
-    return obj.results[0];
-  }
-};
-var D1ListEndpoint = class extends ListEndpoint {
-  static {
-    __name(this, "D1ListEndpoint");
-  }
-  dbName = "DB";
-  logger;
-  getDBBinding() {
-    const env = this.params.router.getBindings(this.args);
-    if (env[this.dbName] === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not defined in worker`);
-    }
-    if (env[this.dbName].prepare === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not a D1 binding`);
-    }
-    return env[this.dbName];
-  }
-  async list(filters) {
-    const offset = (filters.options.per_page || 20) * (filters.options.page || 0) - (filters.options.per_page || 20);
-    const limit = filters.options.per_page;
-    const conditions = [];
-    const conditionsParams = [];
-    for (const f of filters.filters) {
-      if (this.searchFields && f.field === this.searchFieldName) {
-        const searchCondition = this.searchFields.map((obj) => {
-          return `UPPER(${obj}) like UPPER(?${conditionsParams.length + 1})`;
-        }).join(" or ");
-        conditions.push(`(${searchCondition})`);
-        conditionsParams.push(`%${f.value}%`);
-      } else if (f.operator === "EQ") {
-        conditions.push(`${f.field} = ?${conditionsParams.length + 1}`);
-        conditionsParams.push(f.value);
-      } else {
-        throw new ApiException(`operator ${f.operator} Not implemented`);
-      }
-    }
-    let where = "";
-    if (conditions.length > 0) {
-      where = `WHERE ${conditions.join(" AND ")}`;
-    }
-    let orderBy = `ORDER BY ${this.defaultOrderBy || `${this.meta.model.primaryKeys[0]} DESC`}`;
-    if (filters.options.order_by) {
-      orderBy = `ORDER BY ${filters.options.order_by} ${filters.options.order_by_direction || "ASC"}`;
-    }
-    const results = await this.getDBBinding().prepare(`SELECT * FROM ${this.meta.model.tableName} ${where} ${orderBy} LIMIT ${limit} OFFSET ${offset}`).bind(...conditionsParams).all();
-    const total_count = await this.getDBBinding().prepare(`SELECT count(*) as total FROM ${this.meta.model.tableName} ${where} LIMIT ${limit}`).bind(...conditionsParams).all();
-    return {
-      result: results.results,
-      result_info: {
-        count: results.results.length,
-        page: filters.options.page,
-        per_page: filters.options.per_page,
-        total_count: total_count.results[0]?.total
-      }
-    };
-  }
-};
-var D1UpdateEndpoint = class extends UpdateEndpoint {
-  static {
-    __name(this, "D1UpdateEndpoint");
-  }
-  dbName = "DB";
-  logger;
-  constraintsMessages = {};
-  getDBBinding() {
-    const env = this.params.router.getBindings(this.args);
-    if (env[this.dbName] === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not defined in worker`);
-    }
-    if (env[this.dbName].prepare === void 0) {
-      throw new ApiException(`Binding "${this.dbName}" is not a D1 binding`);
-    }
-    return env[this.dbName];
-  }
-  getSafeFilters(filters) {
-    const safeFilters = filters.filters.filter((f) => {
-      return this.meta.model.primaryKeys.includes(f.field);
-    });
-    const conditions = [];
-    const conditionsParams = [];
-    for (const f of safeFilters) {
-      if (f.operator === "EQ") {
-        conditions.push(`${f.field} = ?${conditionsParams.length + 1}`);
-        conditionsParams.push(f.value);
-      } else {
-        throw new ApiException(`operator ${f.operator} Not implemented`);
-      }
-    }
-    return { conditions, conditionsParams };
-  }
-  async getObject(filters) {
-    const safeFilters = this.getSafeFilters(filters);
-    const oldObj = await this.getDBBinding().prepare(
-      `SELECT *
-                                                      FROM ${this.meta.model.tableName} WHERE ${safeFilters.conditions.join(" AND ")} LIMIT 1`
-    ).bind(...safeFilters.conditionsParams).all();
-    if (!oldObj.results || oldObj.results.length === 0) {
-      return null;
-    }
-    return oldObj.results[0];
-  }
-  async update(oldObj, filters) {
-    const safeFilters = this.getSafeFilters(filters);
-    let result;
-    try {
-      const obj = await this.getDBBinding().prepare(
-        `UPDATE ${this.meta.model.tableName} SET ${Object.keys(filters.updatedData).map((key, index) => `${key} = ?${safeFilters.conditionsParams.length + index + 1}`)} WHERE ${safeFilters.conditions.join(" AND ")} RETURNING *`
-      ).bind(...safeFilters.conditionsParams, ...Object.values(filters.updatedData)).all();
-      result = obj.results[0];
-    } catch (e) {
-      if (this.logger)
-        this.logger.error(`Caught exception while trying to update ${this.meta.model.tableName}: ${e.message}`);
-      if (e.message.includes("UNIQUE constraint failed")) {
-        const constraintMessage = e.message.split("UNIQUE constraint failed:")[1].split(":")[0].trim();
-        if (this.constraintsMessages[constraintMessage]) {
-          throw this.constraintsMessages[constraintMessage];
-        }
-      }
-      throw new ApiException(e.message);
-    }
-    if (this.logger) this.logger.log(`Successfully updated ${this.meta.model.tableName}`);
-    return result;
-  }
-};
 
 // node_modules/hono/dist/compose.js
 var compose = /* @__PURE__ */ __name((middleware, onError, onNotFound) => {
@@ -11172,103 +10413,6 @@ var Hono2 = class extends Hono {
   }
 };
 
-// src/endpoints/tasks/base.ts
-var task = external_exports.object({
-  id: external_exports.number().int(),
-  name: external_exports.string(),
-  slug: external_exports.string(),
-  description: external_exports.string(),
-  completed: external_exports.boolean(),
-  due_date: external_exports.string().datetime()
-});
-var TaskModel = {
-  tableName: "tasks",
-  primaryKeys: ["id"],
-  schema: task,
-  serializer: /* @__PURE__ */ __name((obj) => {
-    return {
-      ...obj,
-      completed: Boolean(obj.completed)
-    };
-  }, "serializer"),
-  serializerObject: task
-};
-
-// src/endpoints/tasks/taskList.ts
-var TaskList = class extends D1ListEndpoint {
-  static {
-    __name(this, "TaskList");
-  }
-  _meta = {
-    model: TaskModel
-  };
-  searchFields = ["name", "slug", "description"];
-  defaultOrderBy = "id DESC";
-};
-
-// src/endpoints/tasks/taskCreate.ts
-var TaskCreate = class extends D1CreateEndpoint {
-  static {
-    __name(this, "TaskCreate");
-  }
-  _meta = {
-    model: TaskModel,
-    fields: TaskModel.schema.pick({
-      // this is purposely missing the id, because users shouldn't be able to define it
-      name: true,
-      slug: true,
-      description: true,
-      completed: true,
-      due_date: true
-    })
-  };
-};
-
-// src/endpoints/tasks/taskRead.ts
-var TaskRead = class extends D1ReadEndpoint {
-  static {
-    __name(this, "TaskRead");
-  }
-  _meta = {
-    model: TaskModel
-  };
-};
-
-// src/endpoints/tasks/taskUpdate.ts
-var TaskUpdate = class extends D1UpdateEndpoint {
-  static {
-    __name(this, "TaskUpdate");
-  }
-  _meta = {
-    model: TaskModel,
-    fields: TaskModel.schema.pick({
-      name: true,
-      slug: true,
-      description: true,
-      completed: true,
-      due_date: true
-    })
-  };
-};
-
-// src/endpoints/tasks/taskDelete.ts
-var TaskDelete = class extends D1DeleteEndpoint {
-  static {
-    __name(this, "TaskDelete");
-  }
-  _meta = {
-    model: TaskModel
-  };
-};
-
-// src/endpoints/tasks/router.ts
-var tasksRouter = fromHono(new Hono2());
-tasksRouter.get("/", TaskList);
-tasksRouter.post("/", TaskCreate);
-tasksRouter.get("/:id", TaskRead);
-tasksRouter.put("/:id", TaskUpdate);
-tasksRouter.delete("/:id", TaskDelete);
-
 // src/endpoints/admin/products.ts
 var productSchema = external_exports.object({
   name: external_exports.string().describe("Product name"),
@@ -11322,7 +10466,7 @@ var CreateProduct = class extends OpenAPIRoute {
     const body = await c.req.json();
     const parsed = productSchema.safeParse(body);
     if (!parsed.success) return c.json({ error: "Invalid data" }, 400);
-    const db = c.  ;
+    const db = c.env.DB;
     const { name, description, price, stock, image_url } = parsed.data;
     await db.prepare(
       "INSERT INTO products (name, description, price, stock, image_url) VALUES (?, ?, ?, ?, ?)"
@@ -11574,6 +10718,117 @@ var Login = class extends OpenAPIRoute {
   }
 };
 
+// src/endpoints/payments/razorpayCreateOrder.ts
+var createOrderSchema = external_exports.object({
+  amount: external_exports.number().positive().describe("Amount in rupees"),
+  currency: external_exports.string().optional().describe("Currency (defaults to INR)"),
+  receipt: external_exports.string().optional().describe("Receipt id / reference")
+});
+var RazorpayCreateOrder = class extends OpenAPIRoute {
+  static {
+    __name(this, "RazorpayCreateOrder");
+  }
+  schema = {
+    tags: ["Payments"],
+    summary: "Create a Razorpay order",
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: createOrderSchema
+          }
+        }
+      }
+    },
+    responses: {
+      "200": {
+        description: "Razorpay order created"
+      },
+      "400": { description: "Invalid data" },
+      "500": { description: "Razorpay error" }
+    }
+  };
+  async handle(c) {
+    const body = await c.req.json();
+    const parsed = createOrderSchema.safeParse(body);
+    if (!parsed.success) return c.json({ error: "Invalid data" }, 400);
+    const { amount, currency = "INR", receipt } = parsed.data;
+    const keyId = c.env.RAZORPAY_KEY_ID;
+    const keySecret = c.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) return c.json({ error: "Razorpay keys not configured" }, 500);
+    const amountPaise = Math.round(amount * 100);
+    const auth = btoa(`${keyId}:${keySecret}`);
+    try {
+      const resp = await fetch("https://api.razorpay.com/v1/orders", {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ amount: amountPaise, currency, receipt, payment_capture: 1 })
+      });
+      const data = await resp.json();
+      if (!resp.ok) return c.json({ error: data }, 500);
+      return c.json({ success: true, order: data });
+    } catch (err) {
+      return c.json({ error: err.message || String(err) }, 500);
+    }
+  }
+};
+
+// src/endpoints/payments/razorpayVerify.ts
+var verifySchema = external_exports.object({
+  razorpay_order_id: external_exports.string(),
+  razorpay_payment_id: external_exports.string(),
+  razorpay_signature: external_exports.string()
+});
+function bufferToHex(buf) {
+  const bytes = new Uint8Array(buf);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+__name(bufferToHex, "bufferToHex");
+var RazorpayVerify = class extends OpenAPIRoute {
+  static {
+    __name(this, "RazorpayVerify");
+  }
+  schema = {
+    tags: ["Payments"],
+    summary: "Verify Razorpay payment signature",
+    request: {
+      body: {
+        content: {
+          "application/json": { schema: verifySchema }
+        }
+      }
+    },
+    responses: {
+      "200": { description: "Verified" },
+      "400": { description: "Invalid data or signature" }
+    }
+  };
+  async handle(c) {
+    const body = await c.req.json();
+    const parsed = verifySchema.safeParse(body);
+    if (!parsed.success) return c.json({ error: "Invalid data" }, 400);
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = parsed.data;
+    const secret = c.env.RAZORPAY_KEY_SECRET;
+    if (!secret) return c.json({ error: "Razorpay secret not configured" }, 500);
+    try {
+      const msg = `${razorpay_order_id}|${razorpay_payment_id}`;
+      const enc = new TextEncoder().encode(secret);
+      const key = await crypto.subtle.importKey("raw", enc, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+      const signatureBuf = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
+      const expected = bufferToHex(signatureBuf);
+      if (expected !== razorpay_signature) {
+        return c.json({ verified: false }, 400);
+      }
+      return c.json({ verified: true });
+    } catch (err) {
+      return c.json({ error: err.message || String(err) }, 500);
+    }
+  }
+};
+
 // src/index.ts
 var app = new Hono2();
 app.onError((err, c) => {
@@ -11593,7 +10848,7 @@ app.onError((err, c) => {
   );
 });
 var openapi = fromHono(app, {
-  docs_url: false,
+  docs_url: "/openapi",
   schema: {
     info: {
       title: "GenZmart API",
@@ -11602,7 +10857,6 @@ var openapi = fromHono(app, {
     }
   }
 });
-openapi.route("/tasks", tasksRouter);
 openapi.post("/auth/register", Register);
 openapi.post("/auth/login", Login);
 openapi.get("/admin/products", ListProducts);
@@ -11613,25 +10867,31 @@ openapi.get("/admin/orders", ListOrders);
 openapi.delete("/admin/orders/:id", DeleteOrder);
 openapi.get("/admin/users", ListUsers);
 openapi.delete("/admin/users/:id", DeleteUser);
-app.get(
-  "/",
+openapi.post("/payments/razorpay/create-order", RazorpayCreateOrder);
+openapi.post("/payments/razorpay/verify", RazorpayVerify);
+app.get("/", (c) => c.redirect("/openapi"));
+app.all(
+  "*",
   (c) => c.html(
     `<!doctype html>
     <html>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>GenZmart API</title>
-        <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f7fafc;color:#111} .card{background:white;border-radius:8px;padding:24px;box-shadow:0 6px 18px rgba(0,0,0,.06);max-width:520px;text-align:center}</style>
+        <title>404 - Not Found</title>
+        <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#fee2e2;color:#7f1d1d} .card{background:white;border-radius:8px;padding:40px;box-shadow:0 10px 25px rgba(127,29,29,.15);max-width:600px;text-align:center;border-left:5px solid #dc2626} h1{margin:0 0 10px;font-size:48px;color:#dc2626} p{margin:10px 0;font-size:16px;color:#374151} a{display:inline-block;margin-top:20px;padding:10px 20px;background:#dc2626;color:white;text-decoration:none;border-radius:6px;font-weight:bold;transition:background 0.3s} a:hover{background:#b91c1c}</style>
       </head>
       <body>
         <div class="card">
-          <h1>GenZmart API</h1>
-          <p>Backend is running. API documentation is disabled on this endpoint.</p>
-          <p>If you need the OpenAPI schema, use the configured dev routes or contact the maintainer.</p>
+          <h1>404</h1>
+          <h2 style="margin:5px 0 15px;font-size:24px;color:#374151">Page Not Found</h2>
+          <p>The endpoint you're looking for doesn't exist.</p>
+          <p style="font-size:14px;color:#6b7280"><code>${c.req.path}</code></p>
+          <a href="/openapi">View API Documentation</a>
         </div>
       </body>
-    </html>`
+    </html>`,
+    404
   )
 );
 var src_default = app;
@@ -11677,7 +10937,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-fKjWFD/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-csktQ1/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -11709,7 +10969,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-fKjWFD/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-csktQ1/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

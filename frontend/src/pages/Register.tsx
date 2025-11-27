@@ -4,13 +4,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, Lock, User, Phone } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Phone, MapPin, Calendar } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { apiClient } from "@/services/api";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [gender, setGender] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,24 +24,66 @@ const Register = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate register API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Mock successful registration
-      if (name && email && phone && password) {
+    try {
+      // Validate required fields
+      if (!name || !email || !password) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please fill all required fields (name, email, password)",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate password length
+      if (password.length < 6) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Password must be at least 6 characters long",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Prepare registration data
+      const registrationData = {
+        name,
+        email,
+        password,
+        phone: phone || undefined,
+        address: address || undefined,
+        gender: gender || undefined,
+        date_of_birth: dateOfBirth || undefined,
+      };
+
+      // Call backend register endpoint
+      const response = await apiClient.auth.register(registrationData);
+
+      if (response.success) {
         toast({
           title: "Registration successful",
-          description: "Your account has been created successfully",
+          description: "Your account has been created successfully. Please login.",
         });
         navigate("/login");
       } else {
         toast({
           variant: "destructive",
           title: "Registration failed",
-          description: "Please fill all the required fields",
+          description: response.error || "An error occurred during registration",
         });
       }
-    }, 1500);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast({
+        variant: "destructive",
+        title: "Registration failed",
+        description: error.message || "An unexpected error occurred",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,10 +103,10 @@ const Register = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6 md:p-10">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">Full Name *</Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -76,23 +122,7 @@ const Register = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email">Email address *</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -108,13 +138,13 @@ const Register = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password *</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
@@ -122,8 +152,67 @@ const Register = () => {
                 />
               </div>
               <p className="text-xs text-gray-500">
-                Your password must be at least 8 characters long
+                Your password must be at least 6 characters long
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="address"
+                  type="text"
+                  placeholder="Enter your address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <select
+                id="gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-genzmart-blue bg-white"
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
 
             <div className="text-sm text-gray-500">

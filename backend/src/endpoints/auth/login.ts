@@ -38,9 +38,20 @@ export class Login extends OpenAPIRoute {
     const { email, password } = parsed.data;
 
     // Find user
+    // Hash incoming password to compare with stored hash
+    async function hashPassword(pw: string) {
+      const enc = new TextEncoder();
+      const data = enc.encode(pw);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    const hashed = await hashPassword(password);
+
     const user = await db.prepare(
       "SELECT id, name, email, is_admin FROM users WHERE email = ? AND password = ?"
-    ).bind(email, password).first();
+    ).bind(email, hashed).first();
 
     if (!user) return c.json({ error: "Invalid credentials" }, 401);
 
