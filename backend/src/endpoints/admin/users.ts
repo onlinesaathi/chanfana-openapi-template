@@ -24,15 +24,33 @@ export class DeleteUser extends OpenAPIRoute {
     summary: "Delete a user",
     parameters: [
       {
+        // ParameterObject: use literal types for `in` and `schema.type`
         name: "id",
         in: "path" as const,
         required: true,
-        schema: { type: "integer" as const },
+        schema: {
+          type: "integer" as const,
+          format: "int64",
+        },
+        description: "ID of the user to delete",
       },
     ],
     responses: {
       "200": {
         description: "User deleted successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object" as const,
+              properties: {
+                success: { type: "boolean" as const },
+              },
+            },
+          },
+        },
+      },
+      "404": {
+        description: "User not found",
       },
     },
   };
